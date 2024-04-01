@@ -77,10 +77,14 @@ class View
      *
      * @throws Exception
      */
-    public function setParam(string $key, mixed $value): static
+    public function setParam(string $key, mixed $value, bool $escape = true): static
     {
         if (\strpos($key, '.') !== false) {
             throw new Exception('$key can\'t contain a dot "." character');
+        }
+
+        if (is_string($value) && $escape) {
+            $value = \htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
         }
 
         $this->params[$key] = $value;
@@ -107,7 +111,7 @@ class View
      */
     public function getParent(): ?self
     {
-        if (! empty($this->parent)) {
+        if (!empty($this->parent)) {
             return $this->parent;
         }
 
@@ -207,17 +211,17 @@ class View
      */
     public function print(mixed $value, string|array $filter = ''): mixed
     {
-        if (! empty($filter)) {
+        if (!empty($filter)) {
             if (\is_array($filter)) {
                 foreach ($filter as $callback) {
-                    if (! isset($this->filters[$callback])) {
+                    if (!isset($this->filters[$callback])) {
                         throw new Exception('Filter "'.$callback.'" is not registered');
                     }
 
                     $value = $this->filters[$callback]($value);
                 }
             } else {
-                if (! isset($this->filters[$filter])) {
+                if (!isset($this->filters[$filter])) {
                     throw new Exception('Filter "'.$filter.'" is not registered');
                 }
 
